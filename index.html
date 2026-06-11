@@ -11,15 +11,15 @@
       --text: #1f2937;
       --muted: #6b7280;
       --primary: #4f46e5;
+      --primary-2: #0f766e;
       --primary-soft: rgba(79, 70, 229, 0.16);
       --line: #d1d5db;
       --good: #047857;
+      --warn: #b45309;
       --shadow: 0 12px 30px rgba(15, 23, 42, 0.10);
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -43,28 +43,26 @@
 
     header p {
       margin: 0 auto;
-      max-width: 800px;
+      max-width: 850px;
       color: #e0e7ff;
       font-size: 1rem;
     }
 
     main {
-      max-width: 1100px;
+      max-width: 1220px;
       margin: 0 auto;
       padding: 24px 16px 48px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
+      grid-template-columns: 1.05fr 0.95fr;
       gap: 20px;
       align-items: start;
     }
 
-    @media (max-width: 900px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 980px) {
+      .grid { grid-template-columns: 1fr; }
     }
 
     .card {
@@ -124,9 +122,7 @@
       user-select: none;
     }
 
-    .scale input {
-      display: none;
-    }
+    .scale input { display: none; }
 
     .scale label:has(input:checked) {
       background: var(--primary);
@@ -146,15 +142,9 @@
     }
 
     @media (max-width: 600px) {
-      .legend {
-        display: none;
-      }
-      .scale {
-        gap: 6px;
-      }
-      .scale label {
-        font-size: 0.8rem;
-      }
+      .legend { display: none; }
+      .scale { gap: 6px; }
+      .scale label { font-size: 0.8rem; }
     }
 
     .buttons {
@@ -173,19 +163,42 @@
       transition: 0.15s;
     }
 
-    .primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    .secondary {
-      background: #e5e7eb;
-      color: #111827;
-    }
+    .primary { background: var(--primary); color: white; }
+    .secondary { background: #e5e7eb; color: #111827; }
 
     button:hover {
       filter: brightness(0.96);
       transform: translateY(-1px);
+    }
+
+    button:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .charts-grid { grid-template-columns: 1fr; }
+    }
+
+    .mini-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      background: #fbfdff;
+      padding: 14px;
+    }
+
+    .mini-card h3 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: #111827;
     }
 
     .chart-wrap {
@@ -201,16 +214,20 @@
       height: auto;
     }
 
-    /* Reestilização suave do pentágono */
-    #radar {
+    .radar {
       background: radial-gradient(circle at center, #ffffff 0%, #f8fafc 65%, #eef2ff 100%);
       border-radius: 22px;
       padding: 8px;
       shape-rendering: geometricPrecision;
     }
 
-    #resultPolygon {
+    .result-polygon {
       filter: drop-shadow(0 8px 14px rgba(79, 70, 229, 0.18));
+      transition: all 0.35s ease;
+    }
+
+    .collective-polygon {
+      filter: drop-shadow(0 8px 14px rgba(15, 118, 110, 0.18));
       transition: all 0.35s ease;
     }
 
@@ -229,14 +246,9 @@
       border-bottom: 1px solid #eef2f7;
     }
 
-    .score-name {
-      font-weight: 700;
-    }
-
-    .score-value {
-      font-weight: 800;
-      color: var(--primary);
-    }
+    .score-name { font-weight: 700; }
+    .score-value { font-weight: 800; color: var(--primary); }
+    .score-value.collective { color: var(--primary-2); }
 
     .bar {
       grid-column: 1 / -1;
@@ -255,6 +267,8 @@
       transition: width 0.35s;
     }
 
+    .bar.collective span { background: linear-gradient(90deg, #0f766e, #22c55e); }
+
     .result-box {
       background: #f8fafc;
       border-left: 5px solid var(--primary);
@@ -263,9 +277,19 @@
       margin-top: 18px;
     }
 
-    .result-box strong {
+    .result-box strong { color: #3730a3; }
+
+    .status {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      background: #eef2ff;
       color: #3730a3;
     }
+
+    .status.ok { background: #ecfdf5; color: var(--good); }
+    .status.warn { background: #fffbeb; color: var(--warn); }
 
     .footer-note {
       color: var(--muted);
@@ -281,7 +305,7 @@
     <h1>Pentágono de Perfis do Professor de Matemática</h1>
     <p>
       Responda rapidamente ao questionário e veja a força relativa de cinco dimensões da identidade docente.
-      O resultado é lúdico e formativo, não classificatório.
+      Durante a palestra, o pentágono coletivo é atualizado em tempo real a partir da média dos participantes.
     </p>
   </header>
 
@@ -289,9 +313,7 @@
     <div class="grid">
       <section class="card">
         <h2>Questionário rápido</h2>
-        <p class="intro">
-          Marque de 1 a 5 o quanto cada afirmação combina com você.
-        </p>
+        <p class="intro">Marque de 1 a 5 o quanto cada afirmação combina com você.</p>
 
         <div class="legend">
           <span>1<br>não combina</span>
@@ -353,8 +375,12 @@
           </div>
 
           <div class="buttons">
-            <button type="button" class="primary" onclick="calculate()">Gerar meu pentágono</button>
-            <button type="button" class="secondary" onclick="resetQuiz()">Limpar respostas</button>
+            <button type="button" id="submitBtn" class="primary">Gerar meu pentágono e enviar para a média</button>
+            <button type="button" class="secondary" id="resetBtn">Limpar respostas</button>
+          </div>
+
+          <div class="status" id="firebaseStatus">
+            Conectando ao Firebase para acompanhar o resultado coletivo...
           </div>
         </form>
       </section>
@@ -362,37 +388,56 @@
       <aside class="card">
         <h2>Resultado</h2>
         <p class="intro">
-          O pentágono mostra a força relativa dos cinco perfis. Quanto mais próximo da borda, maior a aproximação.
+          O primeiro pentágono mostra o resultado individual. O segundo mostra a média coletiva dos participantes em tempo real.
         </p>
 
-        <div class="chart-wrap">
-          <svg id="radar" viewBox="0 0 500 500" role="img" aria-label="Pentágono de perfis">
-            <defs>
-              <radialGradient id="resultGradient" cx="50%" cy="50%" r="60%">
-                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.05"/>
-                <stop offset="45%" stop-color="#6366f1" stop-opacity="0.12"/>
-                <stop offset="75%" stop-color="#5b5cf0" stop-opacity="0.22"/>
-                <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.36"/>
-              </radialGradient>
-            </defs>
-            <g id="grid"></g>
-            <polygon
-              id="resultPolygon"
-              points=""
-              fill="url(#resultGradient)"
-              stroke="#4f46e5"
-              stroke-width="3"
-              stroke-linejoin="round">
-            </polygon>
-            <g id="points"></g>
-            <g id="labels"></g>
-          </svg>
+        <div class="charts-grid">
+          <div class="mini-card">
+            <h3>Meu pentágono</h3>
+            <div class="chart-wrap">
+              <svg id="radarIndividual" class="radar" viewBox="0 0 500 500" role="img" aria-label="Pentágono individual de perfis">
+                <defs>
+                  <radialGradient id="individualGradient" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="#6366f1" stop-opacity="0.05"/>
+                    <stop offset="45%" stop-color="#6366f1" stop-opacity="0.12"/>
+                    <stop offset="75%" stop-color="#5b5cf0" stop-opacity="0.22"/>
+                    <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.36"/>
+                  </radialGradient>
+                </defs>
+                <g class="grid-layer"></g>
+                <polygon id="individualPolygon" class="result-polygon" points="" fill="url(#individualGradient)" stroke="#4f46e5" stroke-width="3" stroke-linejoin="round"></polygon>
+                <g id="individualPoints"></g>
+                <g class="labels-layer"></g>
+              </svg>
+            </div>
+          </div>
+
+          <div class="mini-card">
+            <h3>Pentágono coletivo</h3>
+            <div class="chart-wrap">
+              <svg id="radarCollective" class="radar" viewBox="0 0 500 500" role="img" aria-label="Pentágono coletivo médio de perfis">
+                <defs>
+                  <radialGradient id="collectiveGradient" cx="50%" cy="50%" r="60%">
+                    <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.05"/>
+                    <stop offset="45%" stop-color="#14b8a6" stop-opacity="0.13"/>
+                    <stop offset="75%" stop-color="#0f766e" stop-opacity="0.22"/>
+                    <stop offset="100%" stop-color="#0f766e" stop-opacity="0.36"/>
+                  </radialGradient>
+                </defs>
+                <g class="grid-layer"></g>
+                <polygon id="collectivePolygon" class="collective-polygon" points="" fill="url(#collectiveGradient)" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"></polygon>
+                <g id="collectivePoints"></g>
+                <g class="labels-layer"></g>
+              </svg>
+            </div>
+          </div>
         </div>
 
         <ul class="score-list" id="scoreList"></ul>
+        <ul class="score-list" id="collectiveScoreList"></ul>
 
         <div class="result-box" id="interpretation">
-          Responda ao questionário e clique em <strong>Gerar meu pentágono</strong>.
+          Responda ao questionário e clique em <strong>Gerar meu pentágono e enviar para a média</strong>.
         </div>
       </aside>
     </div>
@@ -402,47 +447,70 @@
     </p>
   </main>
 
-  <script>
+  <script type="module">
+    /**************************************************************
+     * 1. CONFIGURAÇÃO DO FIREBASE
+     *
+     * Substitua o objeto abaixo pelo firebaseConfig do seu projeto:
+     * Firebase Console > Configurações do projeto > Seus apps > SDK setup and configuration.
+     **************************************************************/
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      doc,
+      setDoc,
+      onSnapshot,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "COLE_AQUI",
+      authDomain: "COLE_AQUI",
+      projectId: "COLE_AQUI",
+      storageBucket: "COLE_AQUI",
+      messagingSenderId: "COLE_AQUI",
+      appId: "COLE_AQUI"
+    };
+
+    const COLLECTION_NAME = "respostasPentagono";
+    const firebaseConfigured = firebaseConfig.apiKey !== "COLE_AQUI" && firebaseConfig.projectId !== "COLE_AQUI";
+
+    let db = null;
+    let unsubscribeCollective = null;
+
+    if (firebaseConfigured) {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+    }
+
     const profiles = [
-      {
-        key: "A",
-        name: "Epistemológico-conceitual",
-        short: "Conceitual",
-        playful: "Guardião das ideias matemáticas",
-        items: ["A1", "A2"]
-      },
-      {
-        key: "B",
-        name: "Didático-pedagógico do conteúdo",
-        short: "Didático",
-        playful: "Arquiteto da aprendizagem",
-        items: ["B1", "B2"]
-      },
-      {
-        key: "C",
-        name: "Inclusivo-sociocultural",
-        short: "Inclusivo",
-        playful: "Professor da porta aberta",
-        items: ["C1", "C2"]
-      },
-      {
-        key: "D",
-        name: "Tecnológico-representacional",
-        short: "Tecnológico",
-        playful: "Tradutor de representações",
-        items: ["D1", "D2"]
-      },
-      {
-        key: "E",
-        name: "Crítico-problematizador e modelador",
-        short: "Crítico-modelador",
-        playful: "Leitor matemático do mundo",
-        items: ["E1", "E2"]
-      }
+      { key: "A", name: "Epistemológico-conceitual", short: "Conceitual", playful: "Guardião das ideias matemáticas", items: ["A1", "A2"] },
+      { key: "B", name: "Didático-pedagógico do conteúdo", short: "Didático", playful: "Arquiteto da aprendizagem", items: ["B1", "B2"] },
+      { key: "C", name: "Inclusivo-sociocultural", short: "Inclusivo", playful: "Professor da porta aberta", items: ["C1", "C2"] },
+      { key: "D", name: "Tecnológico-representacional", short: "Tecnológico", playful: "Tradutor de representações", items: ["D1", "D2"] },
+      { key: "E", name: "Crítico-problematizador e modelador", short: "Crítico-modelador", playful: "Leitor matemático do mundo", items: ["E1", "E2"] }
     ];
 
     const center = { x: 250, y: 250 };
     const maxRadius = 155;
+
+    const submitBtn = document.getElementById("submitBtn");
+    const resetBtn = document.getElementById("resetBtn");
+    const statusBox = document.getElementById("firebaseStatus");
+
+    submitBtn.addEventListener("click", calculate);
+    resetBtn.addEventListener("click", resetQuiz);
+
+    function getParticipantId() {
+      const storageKey = "pentagonoParticipantId";
+      let id = localStorage.getItem(storageKey);
+      if (!id) {
+        id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random().toString(16).slice(2);
+        localStorage.setItem(storageKey, id);
+      }
+      return id;
+    }
 
     function createScaleButtons() {
       document.querySelectorAll(".scale").forEach(scale => {
@@ -463,9 +531,10 @@
       };
     }
 
-    function drawGrid() {
-      const grid = document.getElementById("grid");
-      const labels = document.getElementById("labels");
+    function drawGridForSvg(svgId) {
+      const svg = document.getElementById(svgId);
+      const grid = svg.querySelector(".grid-layer");
+      const labels = svg.querySelector(".labels-layer");
       grid.innerHTML = "";
       labels.innerHTML = "";
 
@@ -515,45 +584,83 @@
       return selected ? Number(selected.value) : null;
     }
 
-    function calculate() {
+    function calculateScores() {
       const missing = [];
+      const itemValues = {};
+
       const scores = profiles.map(profile => {
         let raw = 0;
 
         profile.items.forEach(item => {
           const value = getItemValue(item);
           if (value === null) missing.push(item);
-          else raw += value;
+          else {
+            raw += value;
+            itemValues[item] = value;
+          }
         });
 
         const percent = Math.round(((raw - 2) / 8) * 100);
-        return {
-          ...profile,
-          raw,
-          percent: Math.max(0, Math.min(100, percent))
-        };
+        return { ...profile, raw, percent: Math.max(0, Math.min(100, percent)) };
       });
+
+      return { scores, itemValues, missing };
+    }
+
+    async function calculate() {
+      const { scores, itemValues, missing } = calculateScores();
 
       if (missing.length > 0) {
         alert("Responda todos os itens antes de gerar o pentágono.");
         return;
       }
 
-      drawResult(scores);
-      showScores(scores);
+      drawResult(scores, "individualPolygon", "individualPoints", "#4f46e5");
+      showScores(scores, "scoreList", false);
       showInterpretation(scores);
+
+      if (!firebaseConfigured || !db) {
+        setStatus("O Firebase ainda não foi configurado. O resultado individual foi gerado, mas a média coletiva não será atualizada.", "warn");
+        return;
+      }
+
+      submitBtn.disabled = true;
+      setStatus("Enviando sua resposta para o pentágono coletivo...", "");
+
+      try {
+        const participantId = getParticipantId();
+        const payload = {
+          participantId,
+          A: scores.find(s => s.key === "A").raw,
+          B: scores.find(s => s.key === "B").raw,
+          C: scores.find(s => s.key === "C").raw,
+          D: scores.find(s => s.key === "D").raw,
+          E: scores.find(s => s.key === "E").raw,
+          total: scores.reduce((sum, s) => sum + s.raw, 0),
+          itemValues,
+          updatedAt: serverTimestamp()
+        };
+
+        await setDoc(doc(db, COLLECTION_NAME, participantId), payload, { merge: true });
+        setStatus("Resposta registrada. Se você reenviar, sua resposta anterior será atualizada, sem duplicar sua participação.", "ok");
+      } catch (error) {
+        console.error(error);
+        setStatus("Não foi possível enviar ao Firebase. Verifique firebaseConfig, regras do Firestore e se o banco foi criado.", "warn");
+      } finally {
+        submitBtn.disabled = false;
+      }
     }
 
-    function drawResult(scores) {
+    function drawResult(scores, polygonId, pointsGroupId, color) {
       const pointsString = scores.map((score, i) => {
         const r = (score.percent / 100) * maxRadius;
         const p = polarPoint(i, r);
         return `${p.x},${p.y}`;
       }).join(" ");
 
-      document.getElementById("resultPolygon").setAttribute("points", pointsString);
+      document.getElementById(polygonId).setAttribute("points", pointsString);
 
-      const pointsGroup = document.getElementById("points");
+      const pointsGroup = document.getElementById(pointsGroupId);
       pointsGroup.innerHTML = "";
 
       scores.forEach((score, i) => {
@@ -565,25 +672,84 @@
         circle.setAttribute("cy", p.y);
         circle.setAttribute("r", "6");
         circle.setAttribute("fill", "#ffffff");
-        circle.setAttribute("stroke", "#4f46e5");
+        circle.setAttribute("stroke", color);
         circle.setAttribute("stroke-width", "3");
         pointsGroup.appendChild(circle);
       });
     }
 
-    function showScores(scores) {
-      const list = document.getElementById("scoreList");
+    function showScores(scores, listId, collective) {
+      const list = document.getElementById(listId);
       list.innerHTML = "";
+
+      const title = document.createElement("li");
+      title.innerHTML = `<span class="score-name">${collective ? "Média coletiva" : "Pontuação individual"}</span><span class="score-value ${collective ? "collective" : ""}">${collective ? "tempo real" : ""}</span>`;
+      list.appendChild(title);
 
       scores.forEach(score => {
         const li = document.createElement("li");
         li.innerHTML = `
           <span class="score-name">${score.name}</span>
-          <span class="score-value">${score.raw}/10 · ${score.percent}%</span>
-          <div class="bar"><span style="width: ${score.percent}%"></span></div>
+          <span class="score-value ${collective ? "collective" : ""}">${score.rawDisplay || score.raw + "/10"} · ${score.percent}%</span>
+          <div class="bar ${collective ? "collective" : ""}"><span style="width: ${score.percent}%"></span></div>
         `;
         list.appendChild(li);
       });
+    }
+
+    function listenToCollectiveResults() {
+      if (!firebaseConfigured || !db) {
+        setStatus("Firebase não configurado. Cole o firebaseConfig para ativar o pentágono coletivo.", "warn");
+        return;
+      }
+
+      const responsesRef = collection(db, COLLECTION_NAME);
+
+      unsubscribeCollective = onSnapshot(responsesRef, snapshot => {
+        const docs = snapshot.docs.map(doc => doc.data()).filter(isValidResponse);
+        const count = docs.length;
+
+        if (count === 0) {
+          document.getElementById("collectivePolygon").setAttribute("points", "");
+          document.getElementById("collectivePoints").innerHTML = "";
+          document.getElementById("collectiveScoreList").innerHTML = `
+            <li><span class="score-name">Média coletiva</span><span class="score-value collective">0 participantes</span></li>
+          `;
+          setStatus("Firebase conectado. Aguardando as primeiras respostas para formar o pentágono coletivo.", "ok");
+          return;
+        }
+
+        const averageScores = profiles.map(profile => {
+          const sum = docs.reduce((acc, response) => acc + Number(response[profile.key]), 0);
+          const averageRaw = sum / count;
+          const percent = Math.round(((averageRaw - 2) / 8) * 100);
+          return {
+            ...profile,
+            raw: averageRaw,
+            rawDisplay: `${averageRaw.toFixed(1).replace(".", ",")}/10`,
+            percent: Math.max(0, Math.min(100, percent))
+          };
+        });
+
+        drawResult(averageScores, "collectivePolygon", "collectivePoints", "#0f766e");
+        showScores(averageScores, "collectiveScoreList", true);
+        setStatus(`Firebase conectado. Pentágono coletivo atualizado com ${count} participante${count === 1 ? "" : "s"}.`, "ok");
+      }, error => {
+        console.error(error);
+        setStatus("Não foi possível ler o resultado coletivo. Verifique as regras de leitura do Firestore.", "warn");
+      });
+    }
+
+    function isValidResponse(response) {
+      return profiles.every(profile => {
+        const value = Number(response[profile.key]);
+        return Number.isFinite(value) && value >= 2 && value <= 10;
+      });
+    }
+
+    function setStatus(message, type) {
+      statusBox.textContent = message;
+      statusBox.className = `status ${type || ""}`.trim();
     }
 
     function getIntensity(total) {
@@ -593,21 +759,18 @@
           text: "Suas respostas indicam uma aproximação ainda inicial com as dimensões formativas propostas. Isso não significa ausência de identidade docente; sugere apenas que, neste momento, essas dimensões apareceram de modo mais discreto nas suas escolhas."
         };
       }
-
       if (total <= 29) {
         return {
           title: "Perfil em construção",
           text: "Suas respostas indicam uma identificação em desenvolvimento com as dimensões formativas propostas. Há sinais importantes de aproximação, mas ainda com espaço para fortalecimento e maior articulação entre os diferentes modos de pensar a docência em Matemática."
         };
       }
-
       if (total <= 39) {
         return {
           title: "Identificação consistente",
           text: "Suas respostas indicam uma identificação consistente com as dimensões formativas propostas. O resultado sugere uma relação já bem mobilizada com diferentes aspectos da docência em Matemática."
         };
       }
-
       return {
         title: "Identificação forte",
         text: "Suas respostas indicam uma identificação forte e ampla com as dimensões formativas propostas. É um resultado expressivo no instrumento, sugerindo uma presença robusta dos diferentes aspectos que compõem a docência em Matemática."
@@ -622,40 +785,24 @@
         D: "ao uso de representações, tecnologias, imagens, gráficos, materiais e diferentes linguagens para tornar as ideias matemáticas mais visíveis.",
         E: "à problematização, à modelagem e à leitura matemática de situações sociais, científicas e tecnológicas."
       };
-
       return descriptions[profile.key] || "a uma dimensão importante da identidade docente em Matemática.";
     }
 
     function joinProfileNames(profilesList) {
       const names = profilesList.map(profile => `<strong>${profile.playful}</strong>`);
-
       if (names.length === 1) return names[0];
       if (names.length === 2) return `${names[0]} e ${names[1]}`;
-
       return `${names.slice(0, -1).join(", ")} e ${names[names.length - 1]}`;
     }
 
     function getShapeDescription(range, total) {
       if (range <= 1) {
-        if (total <= 18) {
-          return "O pentágono ficou equilibrado, porém em uma faixa inicial de intensidade. A leitura mais adequada é vê-lo como ponto de partida para refletir sobre quais dimensões você deseja desenvolver com mais intencionalidade.";
-        }
-
-        if (total >= 40) {
-          return "O pentágono ficou equilibrado e bastante expandido. Isso sugere uma identidade formativa ampla, com forte presença das cinco dimensões consideradas pelo questionário.";
-        }
-
+        if (total <= 18) return "O pentágono ficou equilibrado, porém em uma faixa inicial de intensidade. A leitura mais adequada é vê-lo como ponto de partida para refletir sobre quais dimensões você deseja desenvolver com mais intencionalidade.";
+        if (total >= 40) return "O pentágono ficou equilibrado e bastante expandido. Isso sugere uma identidade formativa ampla, com forte presença das cinco dimensões consideradas pelo questionário.";
         return "O pentágono ficou equilibrado. Isso sugere que nenhuma dimensão se impôs isoladamente, indicando uma identidade docente distribuída entre diferentes referências formativas.";
       }
-
-      if (range <= 3) {
-        return "O pentágono ficou relativamente equilibrado, com pequenas variações entre as dimensões. Isso sugere uma identidade docente híbrida, sem concentração excessiva em apenas um perfil.";
-      }
-
-      if (range <= 5) {
-        return "O pentágono apresenta diferenças moderadas entre as dimensões. Isso indica que alguns aspectos da identidade docente apareceram com mais força, enquanto outros podem ser vistos como campos de desenvolvimento.";
-      }
-
+      if (range <= 3) return "O pentágono ficou relativamente equilibrado, com pequenas variações entre as dimensões. Isso sugere uma identidade docente híbrida, sem concentração excessiva em apenas um perfil.";
+      if (range <= 5) return "O pentágono apresenta diferenças moderadas entre as dimensões. Isso indica que alguns aspectos da identidade docente apareceram com mais força, enquanto outros podem ser vistos como campos de desenvolvimento.";
       return "O pentágono apresenta uma concentração mais acentuada em algumas dimensões. Isso sugere uma identidade docente com focos bem definidos, acompanhada de oportunidades para ampliar outras formas de aproximação com o ensino de Matemática.";
     }
 
@@ -666,10 +813,8 @@
       const range = max - min;
       const winners = scores.filter(s => s.raw === max);
       const box = document.getElementById("interpretation");
-
       const intensity = getIntensity(total);
       const shapeDescription = getShapeDescription(range, total);
-
       let highlightText = "";
 
       if (winners.length === profiles.length) {
@@ -681,42 +826,37 @@
           highlightText = "Como as cinco dimensões ficaram no mesmo patamar, não há um único perfil dominante. O resultado sugere uma configuração formativa equilibrada, combinando diferentes modos de compreender o ensino de Matemática.";
         }
       } else if (winners.length === 1) {
-        highlightText = `
-          A dimensão mais saliente foi ${joinProfileNames(winners)}.
-          Esse destaque está associado ${getProfileDescription(winners[0])}
-        `;
+        highlightText = `A dimensão mais saliente foi ${joinProfileNames(winners)}. Esse destaque está associado ${getProfileDescription(winners[0])}`;
       } else {
-        highlightText = `
-          As dimensões mais salientes foram ${joinProfileNames(winners)}.
-          Esse empate sugere uma identidade docente híbrida, articulada por mais de uma referência formativa.
-        `;
+        highlightText = `As dimensões mais salientes foram ${joinProfileNames(winners)}. Esse empate sugere uma identidade docente híbrida, articulada por mais de uma referência formativa.`;
       }
 
       box.innerHTML = `
         <strong>${intensity.title}</strong>
         <br>${intensity.text}
-        <br><br>
-        ${shapeDescription}
-        <br><br>
-        ${highlightText}
-        <br><br>
-        <span class="score-value">Pontuação geral: ${total}/50.</span>
-        <br>
-        Este resultado não define sua identidade docente de modo definitivo; ele indica tendências formativas que podem ser aprofundadas ao longo da trajetória acadêmica e profissional.
+        <br><br>${shapeDescription}
+        <br><br>${highlightText}
+        <br><br><span class="score-value">Pontuação geral: ${total}/50.</span>
+        <br>Este resultado não define sua identidade docente de modo definitivo; ele indica tendências formativas que podem ser aprofundadas ao longo da trajetória acadêmica e profissional.
       `;
     }
 
     function resetQuiz() {
       document.getElementById("quizForm").reset();
-      document.getElementById("resultPolygon").setAttribute("points", "");
-      document.getElementById("points").innerHTML = "";
+      document.getElementById("individualPolygon").setAttribute("points", "");
+      document.getElementById("individualPoints").innerHTML = "";
       document.getElementById("scoreList").innerHTML = "";
-      document.getElementById("interpretation").innerHTML =
-        'Responda ao questionário e clique em <strong>Gerar meu pentágono</strong>.';
+      document.getElementById("interpretation").innerHTML = 'Responda ao questionário e clique em <strong>Gerar meu pentágono e enviar para a média</strong>.';
     }
 
     createScaleButtons();
-    drawGrid();
+    drawGridForSvg("radarIndividual");
+    drawGridForSvg("radarCollective");
+    listenToCollectiveResults();
+
+    window.addEventListener("beforeunload", () => {
+      if (unsubscribeCollective) unsubscribeCollective();
+    });
   </script>
 </body>
 </html>
