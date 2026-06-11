@@ -201,6 +201,19 @@
       height: auto;
     }
 
+    /* Reestilização suave do pentágono */
+    #radar {
+      background: radial-gradient(circle at center, #ffffff 0%, #f8fafc 65%, #eef2ff 100%);
+      border-radius: 22px;
+      padding: 8px;
+      shape-rendering: geometricPrecision;
+    }
+
+    #resultPolygon {
+      filter: drop-shadow(0 8px 14px rgba(79, 70, 229, 0.18));
+      transition: all 0.35s ease;
+    }
+
     .score-list {
       margin: 16px 0 0;
       padding: 0;
@@ -237,7 +250,7 @@
       display: block;
       height: 100%;
       width: 0;
-      background: var(--primary);
+      background: linear-gradient(90deg, #4f46e5, #14b8a6);
       border-radius: 999px;
       transition: width 0.35s;
     }
@@ -354,8 +367,23 @@
 
         <div class="chart-wrap">
           <svg id="radar" viewBox="0 0 500 500" role="img" aria-label="Pentágono de perfis">
+            <defs>
+              <radialGradient id="resultGradient" cx="50%" cy="50%" r="60%">
+                <stop offset="0%" stop-color="#6366f1" stop-opacity="0.05"/>
+                <stop offset="45%" stop-color="#6366f1" stop-opacity="0.12"/>
+                <stop offset="75%" stop-color="#5b5cf0" stop-opacity="0.22"/>
+                <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.36"/>
+              </radialGradient>
+            </defs>
             <g id="grid"></g>
-            <polygon id="resultPolygon" points="" fill="rgba(79,70,229,0.25)" stroke="#4f46e5" stroke-width="3"></polygon>
+            <polygon
+              id="resultPolygon"
+              points=""
+              fill="url(#resultGradient)"
+              stroke="#4f46e5"
+              stroke-width="3"
+              stroke-linejoin="round">
+            </polygon>
             <g id="points"></g>
             <g id="labels"></g>
           </svg>
@@ -451,8 +479,9 @@
         const poly = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
         poly.setAttribute("points", points);
         poly.setAttribute("fill", "none");
-        poly.setAttribute("stroke", level === 5 ? "#9ca3af" : "#d1d5db");
+        poly.setAttribute("stroke", level === 5 ? "#a5b4fc" : "#e5e7eb");
         poly.setAttribute("stroke-width", level === 5 ? "2" : "1");
+        poly.setAttribute("stroke-dasharray", level === 5 ? "0" : "4 5");
         grid.appendChild(poly);
       }
 
@@ -463,7 +492,7 @@
         axis.setAttribute("y1", center.y);
         axis.setAttribute("x2", axisEnd.x);
         axis.setAttribute("y2", axisEnd.y);
-        axis.setAttribute("stroke", "#d1d5db");
+        axis.setAttribute("stroke", "#e2e8f0");
         axis.setAttribute("stroke-width", "1");
         grid.appendChild(axis);
 
@@ -473,9 +502,9 @@
         text.setAttribute("y", labelPoint.y);
         text.setAttribute("text-anchor", "middle");
         text.setAttribute("dominant-baseline", "middle");
-        text.setAttribute("font-size", "14");
+        text.setAttribute("font-size", "13");
         text.setAttribute("font-weight", "700");
-        text.setAttribute("fill", "#1f2937");
+        text.setAttribute("fill", "#334155");
         text.textContent = profile.short;
         labels.appendChild(text);
       });
@@ -534,8 +563,10 @@
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("cx", p.x);
         circle.setAttribute("cy", p.y);
-        circle.setAttribute("r", "5");
-        circle.setAttribute("fill", "#4f46e5");
+        circle.setAttribute("r", "6");
+        circle.setAttribute("fill", "#ffffff");
+        circle.setAttribute("stroke", "#4f46e5");
+        circle.setAttribute("stroke-width", "3");
         pointsGroup.appendChild(circle);
       });
     }
@@ -555,26 +586,124 @@
       });
     }
 
+    function getIntensity(total) {
+      if (total <= 18) {
+        return {
+          title: "Aproximação inicial",
+          text: "Suas respostas indicam uma aproximação ainda inicial com as dimensões formativas propostas. Isso não significa ausência de identidade docente; sugere apenas que, neste momento, essas dimensões apareceram de modo mais discreto nas suas escolhas."
+        };
+      }
+
+      if (total <= 29) {
+        return {
+          title: "Perfil em construção",
+          text: "Suas respostas indicam uma identificação em desenvolvimento com as dimensões formativas propostas. Há sinais importantes de aproximação, mas ainda com espaço para fortalecimento e maior articulação entre os diferentes modos de pensar a docência em Matemática."
+        };
+      }
+
+      if (total <= 39) {
+        return {
+          title: "Identificação consistente",
+          text: "Suas respostas indicam uma identificação consistente com as dimensões formativas propostas. O resultado sugere uma relação já bem mobilizada com diferentes aspectos da docência em Matemática."
+        };
+      }
+
+      return {
+        title: "Identificação forte",
+        text: "Suas respostas indicam uma identificação forte e ampla com as dimensões formativas propostas. É um resultado expressivo no instrumento, sugerindo uma presença robusta dos diferentes aspectos que compõem a docência em Matemática."
+      };
+    }
+
+    function getProfileDescription(profile) {
+      const descriptions = {
+        A: "à compreensão das ideias matemáticas, da estrutura dos conceitos, da argumentação e do sentido das regras e procedimentos.",
+        B: "ao planejamento do ensino, à mediação da aprendizagem, à escuta das dificuldades dos estudantes e ao uso pedagógico dos erros.",
+        C: "ao compromisso com o acesso real à aprendizagem, à adaptação de recursos e à atenção às diferentes condições dos estudantes.",
+        D: "ao uso de representações, tecnologias, imagens, gráficos, materiais e diferentes linguagens para tornar as ideias matemáticas mais visíveis.",
+        E: "à problematização, à modelagem e à leitura matemática de situações sociais, científicas e tecnológicas."
+      };
+
+      return descriptions[profile.key] || "a uma dimensão importante da identidade docente em Matemática.";
+    }
+
+    function joinProfileNames(profilesList) {
+      const names = profilesList.map(profile => `<strong>${profile.playful}</strong>`);
+
+      if (names.length === 1) return names[0];
+      if (names.length === 2) return `${names[0]} e ${names[1]}`;
+
+      return `${names.slice(0, -1).join(", ")} e ${names[names.length - 1]}`;
+    }
+
+    function getShapeDescription(range, total) {
+      if (range <= 1) {
+        if (total <= 18) {
+          return "O pentágono ficou equilibrado, porém em uma faixa inicial de intensidade. A leitura mais adequada é vê-lo como ponto de partida para refletir sobre quais dimensões você deseja desenvolver com mais intencionalidade.";
+        }
+
+        if (total >= 40) {
+          return "O pentágono ficou equilibrado e bastante expandido. Isso sugere uma identidade formativa ampla, com forte presença das cinco dimensões consideradas pelo questionário.";
+        }
+
+        return "O pentágono ficou equilibrado. Isso sugere que nenhuma dimensão se impôs isoladamente, indicando uma identidade docente distribuída entre diferentes referências formativas.";
+      }
+
+      if (range <= 3) {
+        return "O pentágono ficou relativamente equilibrado, com pequenas variações entre as dimensões. Isso sugere uma identidade docente híbrida, sem concentração excessiva em apenas um perfil.";
+      }
+
+      if (range <= 5) {
+        return "O pentágono apresenta diferenças moderadas entre as dimensões. Isso indica que alguns aspectos da identidade docente apareceram com mais força, enquanto outros podem ser vistos como campos de desenvolvimento.";
+      }
+
+      return "O pentágono apresenta uma concentração mais acentuada em algumas dimensões. Isso sugere uma identidade docente com focos bem definidos, acompanhada de oportunidades para ampliar outras formas de aproximação com o ensino de Matemática.";
+    }
+
     function showInterpretation(scores) {
+      const total = scores.reduce((sum, score) => sum + score.raw, 0);
       const max = Math.max(...scores.map(s => s.raw));
+      const min = Math.min(...scores.map(s => s.raw));
+      const range = max - min;
       const winners = scores.filter(s => s.raw === max);
       const box = document.getElementById("interpretation");
 
-      if (winners.length === 1) {
-        box.innerHTML = `
-          Seu perfil mais saliente neste momento é:
-          <br><strong>${winners[0].playful}</strong>
-          <br><br>
-          Isso não define sua identidade docente inteira; apenas indica a dimensão que apareceu com mais força nas suas respostas.
+      const intensity = getIntensity(total);
+      const shapeDescription = getShapeDescription(range, total);
+
+      let highlightText = "";
+
+      if (winners.length === profiles.length) {
+        if (total <= 18) {
+          highlightText = "Como as cinco dimensões ficaram no mesmo patamar, não há um perfil mais saliente neste momento. O resultado convida a observar a docência em Matemática como um campo aberto de exploração e amadurecimento.";
+        } else if (total >= 40) {
+          highlightText = "Como as cinco dimensões ficaram no mesmo patamar elevado, o resultado sugere uma identificação ampla com a docência em Matemática, articulando domínio conceitual, mediação pedagógica, compromisso inclusivo, uso de representações e leitura crítica do mundo.";
+        } else {
+          highlightText = "Como as cinco dimensões ficaram no mesmo patamar, não há um único perfil dominante. O resultado sugere uma configuração formativa equilibrada, combinando diferentes modos de compreender o ensino de Matemática.";
+        }
+      } else if (winners.length === 1) {
+        highlightText = `
+          A dimensão mais saliente foi ${joinProfileNames(winners)}.
+          Esse destaque está associado ${getProfileDescription(winners[0])}
         `;
       } else {
-        box.innerHTML = `
-          Houve empate entre ${winners.length} perfis.
-          <br><strong>${winners.map(w => w.playful).join(", ")}</strong>
-          <br><br>
-          Isso sugere uma identidade docente híbrida, combinando diferentes modos de pensar o ensino de Matemática.
+        highlightText = `
+          As dimensões mais salientes foram ${joinProfileNames(winners)}.
+          Esse empate sugere uma identidade docente híbrida, articulada por mais de uma referência formativa.
         `;
       }
+
+      box.innerHTML = `
+        <strong>${intensity.title}</strong>
+        <br>${intensity.text}
+        <br><br>
+        ${shapeDescription}
+        <br><br>
+        ${highlightText}
+        <br><br>
+        <span class="score-value">Pontuação geral: ${total}/50.</span>
+        <br>
+        Este resultado não define sua identidade docente de modo definitivo; ele indica tendências formativas que podem ser aprofundadas ao longo da trajetória acadêmica e profissional.
+      `;
     }
 
     function resetQuiz() {
