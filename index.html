@@ -324,7 +324,6 @@
         </div>
 
         <form id="quizForm">
-          <h3>A. Epistemológico-conceitual</h3>
           <div class="question">
             <p>A1. Quando ensino Matemática, gosto de mostrar o sentido das ideias, e não apenas o procedimento.</p>
             <div class="scale" data-name="A1"></div>
@@ -334,7 +333,6 @@
             <div class="scale" data-name="A2"></div>
           </div>
 
-          <h3>B. Didático-pedagógico do conteúdo</h3>
           <div class="question">
             <p>B1. Ao planejar uma aula, penso nas dificuldades que os estudantes provavelmente terão.</p>
             <div class="scale" data-name="B1"></div>
@@ -344,7 +342,6 @@
             <div class="scale" data-name="B2"></div>
           </div>
 
-          <h3>C. Inclusivo-sociocultural</h3>
           <div class="question">
             <p>C1. Preocupo-me em fazer com que diferentes estudantes tenham acesso real à aprendizagem matemática.</p>
             <div class="scale" data-name="C1"></div>
@@ -354,7 +351,6 @@
             <div class="scale" data-name="C2"></div>
           </div>
 
-          <h3>D. Tecnológico-representacional</h3>
           <div class="question">
             <p>D1. Gosto de usar gráficos, imagens, softwares, materiais ou tecnologias para tornar ideias matemáticas mais visíveis.</p>
             <div class="scale" data-name="D1"></div>
@@ -364,7 +360,6 @@
             <div class="scale" data-name="D2"></div>
           </div>
 
-          <h3>E. Crítico-problematizador e modelador</h3>
           <div class="question">
             <p>E1. Gosto de propor problemas que relacionem Matemática com situações reais, sociais, científicas ou tecnológicas.</p>
             <div class="scale" data-name="E1"></div>
@@ -495,6 +490,46 @@
 
     const center = { x: 250, y: 250 };
     const maxRadius = 155;
+
+    const collectivePalettes = [
+      {
+        inner: "#14b8a6",
+        middle: "#0f766e",
+        outer: "#0f766e",
+        stroke: "#0f766e",
+        glow: "rgba(15, 118, 110, 0.22)"
+      },
+      {
+        inner: "#38bdf8",
+        middle: "#0284c7",
+        outer: "#0369a1",
+        stroke: "#0284c7",
+        glow: "rgba(2, 132, 199, 0.22)"
+      },
+      {
+        inner: "#a78bfa",
+        middle: "#7c3aed",
+        outer: "#6d28d9",
+        stroke: "#7c3aed",
+        glow: "rgba(124, 58, 237, 0.22)"
+      },
+      {
+        inner: "#f59e0b",
+        middle: "#d97706",
+        outer: "#b45309",
+        stroke: "#d97706",
+        glow: "rgba(217, 119, 6, 0.22)"
+      },
+      {
+        inner: "#fb7185",
+        middle: "#e11d48",
+        outer: "#be123c",
+        stroke: "#e11d48",
+        glow: "rgba(225, 29, 72, 0.20)"
+      }
+    ];
+
+    let collectivePaletteIndex = 0;
 
     const submitBtn = document.getElementById("submitBtn");
     const resetBtn = document.getElementById("resetBtn");
@@ -652,6 +687,25 @@
       }
     }
 
+    function updateCollectivePalette() {
+      const palette = collectivePalettes[collectivePaletteIndex % collectivePalettes.length];
+      collectivePaletteIndex += 1;
+
+      const stops = document.querySelectorAll("#collectiveGradient stop");
+      if (stops.length >= 4) {
+        stops[0].setAttribute("stop-color", palette.inner);
+        stops[1].setAttribute("stop-color", palette.inner);
+        stops[2].setAttribute("stop-color", palette.middle);
+        stops[3].setAttribute("stop-color", palette.outer);
+      }
+
+      const polygon = document.getElementById("collectivePolygon");
+      polygon.setAttribute("stroke", palette.stroke);
+      polygon.style.filter = `drop-shadow(0 8px 14px ${palette.glow})`;
+
+      return palette.stroke;
+    }
+
     function drawResult(scores, polygonId, pointsGroupId, color) {
       const pointsString = scores.map((score, i) => {
         const r = (score.percent / 100) * maxRadius;
@@ -732,7 +786,8 @@
           };
         });
 
-        drawResult(averageScores, "collectivePolygon", "collectivePoints", "#0f766e");
+        const collectiveColor = updateCollectivePalette();
+        drawResult(averageScores, "collectivePolygon", "collectivePoints", collectiveColor);
         showScores(averageScores, "collectiveScoreList", true);
         setStatus(`Firebase conectado. Pentágono coletivo atualizado com ${count} participante${count === 1 ? "" : "s"}.`, "ok");
       }, error => {
